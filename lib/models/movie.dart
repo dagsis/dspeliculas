@@ -40,6 +40,14 @@ class Movie {
     return 'https://image.tmdb.org/t/p/w500${this.posterPath}';
   }
 
+  get fullbackdropPath {
+
+    if (this.backdropPath == null){
+      return 'https://i.stack.imgur.com/GNhxO.png';
+    }
+    return 'https://image.tmdb.org/t/p/w500${this.backdropPath}';
+  }
+
   factory Movie.fromJson(String str) => Movie.fromMap(json.decode(str));
 
 

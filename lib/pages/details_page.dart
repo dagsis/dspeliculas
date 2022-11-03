@@ -1,3 +1,4 @@
+import 'package:dspeliculas/models/movie.dart';
 import 'package:dspeliculas/widgets/casting_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -7,20 +8,18 @@ class DetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    final String movie = ModalRoute.of(context)?.settings.arguments.toString() ?? 'no-movie';
+    final Movie movie = ModalRoute.of(context)!.settings.arguments as Movie;
     
     return Scaffold(
 
       body: CustomScrollView(
         slivers: [
-          _CustomAppBar(),
+          _CustomAppBar(movie: movie),
           SliverList(
               delegate: SliverChildListDelegate([
-                _PosterAndTitle(),
-                _Overview(),
-                _Overview(),
-                _Overview(),
-                CastingCard()
+                _PosterAndTitle(movie: movie),
+                _Overview(overview: movie.overview),
+                CastingCard(movieId: movie.id,)
                ]),
           ),
         ],
@@ -30,10 +29,18 @@ class DetailsPage extends StatelessWidget {
 }
 
 class _CustomAppBar extends StatelessWidget {
-  const _CustomAppBar({Key? key}) : super(key: key);
+  const _CustomAppBar({Key? key,
+    required this.movie}) : super(key: key);
+
+  final Movie movie;
+
+
 
   @override
   Widget build(BuildContext context) {
+
+   // print('Full : ${movie.fullBackupPath}');
+
     return SliverAppBar(
       backgroundColor: Colors.indigo,
       expandedHeight: 200,
@@ -43,19 +50,20 @@ class _CustomAppBar extends StatelessWidget {
         centerTitle: true,
         titlePadding: EdgeInsets.all(0),
         title:Container(
-          padding: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.only(bottom: 10,left: 10,right: 10),
           width: double.infinity,
           alignment: Alignment.bottomCenter,
           color: Colors.black12,
-          child: Text('movie-title',style: TextStyle(
+          child: Text(movie.title,style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
         background: FadeInImage(
           placeholder: AssetImage('assets/loading.gif'),
-          image: NetworkImage('https://via.placeholder.com/400x300.png'),
+          image: NetworkImage(movie.fullbackdropPath),
           fit: BoxFit.cover,
         ),
       ),
@@ -64,12 +72,17 @@ class _CustomAppBar extends StatelessWidget {
   }
 }
 class _PosterAndTitle extends StatelessWidget {
-  const _PosterAndTitle({Key? key}) : super(key: key);
+  const _PosterAndTitle({
+    Key? key,
+    required this.movie}) : super(key: key);
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
 
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final size = MediaQuery.of(context).size;
 
     return Container(
       margin: EdgeInsets.only(top: 20),
@@ -80,31 +93,36 @@ class _PosterAndTitle extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: FadeInImage(
               placeholder: AssetImage('assets/no-image.jpg'),
-              image: NetworkImage('https://via.placeholder.com/200x300.png'),
+              image: NetworkImage(movie.fulPosterImg),
               height: 150,
+              width: 110,
             ),
           ),
           SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                  'movie.title', style: textTheme.headline5,
-                  overflow: TextOverflow.ellipsis,maxLines: 2
-              ),
-              Text(
-                  'movie.original.title', style: textTheme.subtitle1,
-                  overflow: TextOverflow.ellipsis
-              ),
-              Row(
-                children: [
-                  Icon(Icons.star_outline,size: 15,color: Colors.grey),
-                  SizedBox(width: 5),
-                  Text('movie.voteAverage',style:textTheme.caption,
-                  )
-                ],
-              )
-            ],
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: size.width - 190),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                    movie.title, style: textTheme.headline5,
+                    overflow: TextOverflow.ellipsis,maxLines: 2
+                ),
+
+                Text(
+                    movie.originalTitle, style: textTheme.subtitle1,
+                    overflow: TextOverflow.ellipsis,maxLines: 2,
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.star_outline,size: 15,color: Colors.grey),
+                    SizedBox(width: 5),
+                    Text(movie.voteAverage.toString(),style:textTheme.caption,
+                    )
+                  ],
+                )
+              ],
+            ),
           )
         ],
       ),
@@ -113,13 +131,16 @@ class _PosterAndTitle extends StatelessWidget {
 }
 
 class _Overview extends StatelessWidget {
-  const _Overview({Key? key}) : super(key: key);
+  const _Overview({Key? key,
+      required this.overview}) : super(key: key);
+
+  final String overview;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30,vertical: 10),
-      child: Text('Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum"',
+      child: Text( this.overview,
              textAlign: TextAlign.justify,
         style: Theme.of(context).textTheme.subtitle1,
       ),
